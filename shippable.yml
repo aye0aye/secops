@@ -120,7 +120,7 @@ jobs:
       - IN: netw_tf_state
       - IN: netw_conf
         switch: off
-      - IN: aws_creds
+      - IN: demo_aws_cli
         switch: off
       - IN: sec_repo
         switch: off
