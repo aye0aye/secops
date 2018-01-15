@@ -104,9 +104,9 @@ jobs:
             - cd ./infra/awsSetupIAM
             - ./provNetwork.sh create
             - popd
-      - OUT: ami_vpc_conf
-      - OUT: test_vpc_conf
-      - OUT: prod_vpc_conf
+      - OUT: ami_vpc_info
+      - OUT: test_vpc_info
+      - OUT: prod_vpc_info
       - OUT: netw_tf_state
     always:
       - script: ./build/IN/secops_repo/gitRepo/infra/archiveState.sh infra/awsSetupIAM netw_tf_state sec_repo
