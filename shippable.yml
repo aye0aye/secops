@@ -1,0 +1,152 @@
+#---------------------------------------------------------------#
+#--------------------- SecOps Resources-------------------------#
+#---------------------------------------------------------------#
+
+resources:
+#################################################################
+## Shared resources
+
+# Automation scripts repo
+  - name: sec_repo
+    type: gitRepo
+    integration: "demo_github"
+    pointer:
+      sourceName: "aye0aye/secops"
+      branch: master
+
+# AWS credentials
+  - name: demo_aws_cli
+    type: cliConfig
+    integration: demo_aws
+    versionTemplate:
+      region: us-east-1
+
+  - name: demo_aws_pem
+    type: integration
+    integration: demo_key_pair
+
+#################################################################
+## Networking input resources
+
+# Networking Terraform State
+  - name: netw_tf_state
+    type: state
+
+# VPC Creation Config
+  - name: netw_conf
+    type: params
+    version:
+      params:
+        REGION: "us-east-1"
+        AMI_VPC: "demo_ami_vpc"
+        AMI_NETWORK_CIDR: "10.0.0.0/16"
+        AMI_PUBLIC_CIDR: "10.0.0.0/24"
+        TEST_VPC: "demo_test_vpc"
+        TEST_NETWORK_CIDR: "200.0.0.0/16"
+        TEST_PUBLIC_01_CIDR: "200.0.0.0/24"
+        TEST_PUBLIC_02_CIDR: "200.0.10.0/24"
+        PROD_VPC: "demo_prod_vpc"
+        PROD_NETWORK_CIDR: "100.0.0.0/16"
+        PROD_PUBLIC_01_CIDR: "100.0.0.0/24"
+        PROD_PUBLIC_02_CIDR: "100.0.10.0/24"
+
+#################################################################
+## Networking output resources
+
+# Base ECS AMI ID
+  - name: ami_sec_approved
+    type: params
+    version:
+      params:
+        SEED: "initial_version"
+
+# AMI VPC Info
+  - name: ami_vpc_info
+    type: params
+    version:
+      params:
+        SEED: "initial_version"
+
+# Test VPC Info
+  - name: test_vpc_info
+    type: params
+    version:
+      params:
+        SEED: "initial_version"
+
+# Prod VPC Info
+  - name: prod_vpc_info
+    type: params
+    version:
+      params:
+        SEED: "initial_version"
+
+#---------------------------------------------------------------#
+#---------------------- SecOps Jobs ----------------------------#
+#---------------------------------------------------------------#
+
+jobs:
+# Set up Network - AWS IAM roles, profiles, VPCs etc. with TERRAFORM
+  - name: prov_netw_tf
+    type: runSh
+    dependencyMode: strict
+    triggerMode: parallel
+    steps:
+      - IN: netw_tf_state
+      - IN: netw_conf
+      - IN: demo_aws_cli
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - TASK:
+          script:
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/awsSetupIAM
+            - ./provNetwork.sh create
+            - popd
+      - OUT: ami_vpc_conf
+      - OUT: test_vpc_conf
+      - OUT: prod_vpc_conf
+      - OUT: netw_tf_state
+    always:
+      - script: ./build/IN/secops_repo/gitRepo/infra/archiveState.sh infra/awsSetupIAM netw_tf_state sec_repo
+
+# Deprovision Network
+  - name: deprov_netw_tf
+    type: runSh
+    steps:
+      - IN: prov_netw_tf
+        switch: off
+      - IN: netw_tf_state
+      - IN: netw_conf
+        switch: off
+      - IN: aws_creds
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - TASK:
+          script:
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/awsSetupIAM
+            - ./provNetwork.sh destroy
+            - popd
+      - OUT: netw_tf_state
+    always:
+      - script: ./build/IN/secops_repo/gitRepo/infra/archiveState.sh infra/awsSetupIAM netw_tf_state sec_repo
+
+# Build Machine image - AWS AMI used to deploy ECS VMs with PACKER
+  - name: prep_ecs_ami_pack
+    type: runSh
+    steps:
+      - IN: demo_aws_cli
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - IN: ami_vpc_info
+      - TASK:
+          script:
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/awsBuildAMI
+            - ./basePack.sh
+            - popd
+      - OUT: ami_sec_approved
