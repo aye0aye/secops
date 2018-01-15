@@ -54,7 +54,7 @@ resources:
 ## Networking output resources
 
 # Base ECS AMI ID
-  - name: ami_sec_approved
+  - name: ami_secops_approved
     type: params
     version:
       params:
@@ -147,6 +147,6 @@ jobs:
           script:
             - pushd $(shipctl get_resource_state "sec_repo")
             - cd ./infra/awsBuildAMI
-            - ./basePack.sh
+            - ./basePack.sh prep_ecs_ami_pack demo_aws_cli ami_secops_approved
             - popd
-      - OUT: ami_sec_approved
+      - OUT: ami_secops_approved
