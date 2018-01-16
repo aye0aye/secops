@@ -44,6 +44,7 @@ build_ecs_ami() {
     shipctl post_resource_state $JOB_NAME versionName $AMI_ID
     shipctl post_resource_state_multi $OUT_AMI_SEC_APPRD \
       "versionName=$AMI_ID \
+      STATUS='available' \
       AMI_ID=$AMI_ID"
 }
 

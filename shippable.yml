@@ -58,7 +58,7 @@ resources:
     type: params
     version:
       params:
-        SEED: "initial_version"
+        STATUS: "empty"
 
 # AMI VPC Info
   - name: ami_vpc_info
@@ -168,3 +168,4 @@ jobs:
             - ./basePack.sh demo_aws_cli ami_secops_approved
             - popd
       - OUT: ami_secops_approved
+        overwrite: true
