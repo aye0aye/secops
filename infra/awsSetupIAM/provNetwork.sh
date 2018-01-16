@@ -11,8 +11,8 @@ export OUT_PROD_VPC="prod_vpc_info"
 export TF_STATEFILE="terraform.tfstate"
 
 # Now get AWS keys
-export AWS_ACCESS_KEY_ID=$(get_integration_resource_field $RES_AWS_CREDS aws_access_key_id)
-export AWS_SECRET_ACCESS_KEY=$(get_integration_resource_field $RES_AWS_CREDS aws_secret_access_key)
+export AWS_ACCESS_KEY_ID=$(shipctl get_integration_resource_field $RES_AWS_CREDS aws_access_key_id)
+export AWS_SECRET_ACCESS_KEY=$(shipctl get_integration_resource_field $RES_AWS_CREDS aws_secret_access_key)
 
 set_context(){
   echo "RES_AWS_CREDS=$RES_AWS_CREDS"
@@ -22,10 +22,10 @@ set_context(){
   echo "AWS_SECRET_ACCESS_KEY=${#AWS_SECRET_ACCESS_KEY}" #print only length not value
 
   # This restores the terraform state file
-  ship_resource_copy_file_from_state $STATE_RES $TF_STATEFILE .
+  shipctl ship_resource_copy_file_from_state $STATE_RES $TF_STATEFILE .
 
   # This gets the PEM key for SSH into the machines
-  ship_resource_get_integration $RES_AWS_PEM key > ../demo-key.pem
+  shipctl ship_resource_get_integration $RES_AWS_PEM key > ../demo-key.pem
   chmod 600 ../demo-key.pem
 
   # now setup the variables based on context
@@ -60,42 +60,42 @@ apply_changes() {
 #  terraform apply
 
   #output AMI VPC
-  ship_resource_post_state $OUT_AMI_VPC versionName \
+  shipctl ship_resource_post_state $OUT_AMI_VPC versionName \
     "Version from build $BUILD_NUMBER"
-  ship_resource_put_state $OUT_AMI_VPC REGION $REGION
-  ship_resource_put_state $OUT_AMI_VPC BASE_ECS_AMI \
+  shipctl ship_resource_put_state $OUT_AMI_VPC REGION $REGION
+  shipctl ship_resource_put_state $OUT_AMI_VPC BASE_ECS_AMI \
     $(terraform output base_ecs_ami)
-  ship_resource_put_state $OUT_AMI_VPC AMI_VPC_ID \
+  shipctl ship_resource_put_state $OUT_AMI_VPC AMI_VPC_ID \
     $(terraform output ami_vpc_id)
-  ship_resource_put_state $OUT_AMI_VPC AMI_PUBLIC_SG_ID \
+  shipctl ship_resource_put_state $OUT_AMI_VPC AMI_PUBLIC_SG_ID \
     $(terraform output ami_public_sg_id)
-  ship_resource_put_state $OUT_AMI_VPC AMI_PUBLIC_SN_ID \
+  shipctl ship_resource_put_state $OUT_AMI_VPC AMI_PUBLIC_SN_ID \
     $(terraform output ami_public_sn_id)
 
   #output TEST VPC
-  ship_resource_post_state $OUT_TEST_VPC versionName \
+  shipctl ship_resource_post_state $OUT_TEST_VPC versionName \
     "Version from build $BUILD_NUMBER"
-  ship_resource_put_state $OUT_TEST_VPC REGION $REGION
-  ship_resource_put_state $OUT_TEST_VPC TEST_VPC_ID \
+  shipctl ship_resource_put_state $OUT_TEST_VPC REGION $REGION
+  shipctl ship_resource_put_state $OUT_TEST_VPC TEST_VPC_ID \
     $(terraform output test_vpc_id)
-  ship_resource_put_state $OUT_TEST_VPC TEST_PUBLIC_SG_ID \
+  shipctl ship_resource_put_state $OUT_TEST_VPC TEST_PUBLIC_SG_ID \
     $(terraform output test_public_sg_id)
-  ship_resource_put_state $OUT_TEST_VPC TEST_PUBLIC_SN_01_ID \
+  shipctl ship_resource_put_state $OUT_TEST_VPC TEST_PUBLIC_SN_01_ID \
     $(terraform output test_public_sn_01_id)
-  ship_resource_put_state $OUT_TEST_VPC TEST_PUBLIC_SN_02_ID \
+  shipctl ship_resource_put_state $OUT_TEST_VPC TEST_PUBLIC_SN_02_ID \
     $(terraform output test_public_sn_02_id)
 
   #output PROD VPC
-  ship_resource_post_state $OUT_PROD_VPC versionName \
+  shipctl ship_resource_post_state $OUT_PROD_VPC versionName \
     "Version from build $BUILD_NUMBER"
-  ship_resource_put_state $OUT_PROD_VPC REGION $REGION
-  ship_resource_put_state $OUT_PROD_VPC PROD_VPC_ID \
+  shipctl ship_resource_put_state $OUT_PROD_VPC REGION $REGION
+  shipctl ship_resource_put_state $OUT_PROD_VPC PROD_VPC_ID \
     $(terraform output prod_vpc_id)
-  ship_resource_put_state $OUT_PROD_VPC PROD_PUBLIC_SG_ID \
+  shipctl ship_resource_put_state $OUT_PROD_VPC PROD_PUBLIC_SG_ID \
     $(terraform output prod_public_sg_id)
-  ship_resource_put_state $OUT_PROD_VPC PROD_PUBLIC_SN_01_ID \
+  shipctl ship_resource_put_state $OUT_PROD_VPC PROD_PUBLIC_SN_01_ID \
     $(terraform output prod_public_sn_01_id)
-  ship_resource_put_state $OUT_PROD_VPC PROD_PUBLIC_SN_02_ID \
+  shipctl ship_resource_put_state $OUT_PROD_VPC PROD_PUBLIC_SN_02_ID \
     $(terraform output prod_public_sn_02_id)
 }
 
