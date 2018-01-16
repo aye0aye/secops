@@ -1,21 +1,13 @@
 #!/bin/bash -e
 
 export ACTION=$1
-export STATE_RES="netw_tf_state"
+export STATE_RES=$2
 export RES_AWS_CREDS="demo_aws_cli"
-export RES_AWS_PEM="demo_aws_pem"
 export OUT_AMI_VPC="ami_vpc_info"
 export OUT_TEST_VPC="test_vpc_info"
 export OUT_PROD_VPC="prod_vpc_info"
 
 export TF_STATEFILE="terraform.tfstate"
-
-## Now get AWS keys
-#export RES_AWS_CREDS_UP=$(echo $RES_AWS_CREDS | awk '{print toupper($0)}')
-#export RES_AWS_CREDS_INT=$RES_AWS_CREDS_UP"_INTEGRATION"
-#
-#export AWS_ACCESS_KEY_ID=$(eval echo "$"$RES_AWS_CREDS_INT"_ACCESSKEY")
-#export AWS_SECRET_ACCESS_KEY=$(eval echo "$"$RES_AWS_CREDS_INT"_SECRETKEY")
 
 export AWS_ACCESS_KEY_ID=$(shipctl get_integration_resource_field $RES_AWS_CREDS ACCESSKEY)
 export AWS_SECRET_ACCESS_KEY=$(shipctl get_integration_resource_field $RES_AWS_CREDS SECRETKEY)
@@ -30,13 +22,9 @@ set_context(){
   # This restores the terraform state file
   shipctl copy_file_from_resource_state $STATE_RES $TF_STATEFILE .
 
-  # This gets the PEM key for SSH into the machines
-  shipctl get_integration_resource_field $RES_AWS_PEM key > ../demo-key.pem
-  chmod 600 ../demo-key.pem
 
   # now setup the variables based on context
   # naming the file terraform.tfvars makes terraform automatically load it
-
   echo "aws_access_key_id = \"$AWS_ACCESS_KEY_ID\"" > terraform.tfvars
   echo "aws_secret_access_key = \"$AWS_SECRET_ACCESS_KEY\"" >> terraform.tfvars
   echo "region = \"$REGION\"" >> terraform.tfvars
@@ -56,6 +44,33 @@ set_context(){
 destroy_changes() {
   echo "----------------  Destroy changes  -------------------"
   terraform destroy -force
+
+    #output AMI VPC
+  shipctl post_resource_state_multi $OUT_AMI_VPC \
+    "versionName='Version from build $BUILD_NUMBER' \
+     REGION='' \
+     BASE_ECS_AMI='' \
+     AMI_VPC_ID='' \
+     AMI_PUBLIC_SG_ID='' \
+     AMI_PUBLIC_SN_ID='' "
+
+  #output TEST VPC
+  shipctl post_resource_state_multi $OUT_TEST_VPC \
+    "versionName='Version from build $BUILD_NUMBER' \
+     REGION='' \
+     TEST_VPC_ID='' \
+     TEST_PUBLIC_SG_ID='' \
+     TEST_PUBLIC_SN_01_ID='' \
+     TEST_PUBLIC_SN_02_ID='' "
+
+  #output PROD VPC
+  shipctl post_resource_state_multi $OUT_PROD_VPC \
+    "versionName='Version from build $BUILD_NUMBER' \
+     REGION='' \
+     PROD_VPC_ID='' \
+     PROD_PUBLIC_SG_ID='' \
+     PROD_PUBLIC_SN_01_ID='' \
+     PROD_PUBLIC_SN_02_ID=$'' "
 }
 
 apply_changes() {

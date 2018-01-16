@@ -102,7 +102,7 @@ jobs:
           script:
             - pushd $(shipctl get_resource_state "sec_repo")
             - cd ./infra/awsSetupIAM
-            - ./provNetwork.sh create
+            - ./provNetwork.sh create netw_tf_state
             - popd
       - OUT: ami_vpc_info
       - OUT: test_vpc_info
@@ -132,9 +132,12 @@ jobs:
           script:
             - pushd $(shipctl get_resource_state "sec_repo")
             - cd ./infra/awsSetupIAM
-            - ./provNetwork.sh destroy
+            - ./provNetwork.sh destroy netw_tf_state
             - popd
       - OUT: netw_tf_state
+      - OUT: ami_vpc_info
+      - OUT: test_vpc_info
+      - OUT: prod_vpc_info
     always:
       script:
         - pushd $(shipctl get_resource_state "sec_repo")
