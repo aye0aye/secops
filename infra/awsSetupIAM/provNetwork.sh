@@ -14,14 +14,12 @@ AWS_SECRET_ACCESS_KEY=$(shipctl get_integration_resource_field $RES_AWS_CREDS SE
 
 set_context(){
   echo "RES_AWS_CREDS=$RES_AWS_CREDS"
-  echo "RES_AWS_PEM=$RES_AWS_PEM"
 
   echo "AWS_ACCESS_KEY_ID=${#AWS_ACCESS_KEY_ID}" #print only length not value
   echo "AWS_SECRET_ACCESS_KEY=${#AWS_SECRET_ACCESS_KEY}" #print only length not value
 
   # This restores the terraform state file
   shipctl copy_file_from_resource_state $STATE_RES $TF_STATEFILE .
-
 
   # now setup the variables based on context
   # naming the file terraform.tfvars makes terraform automatically load it
