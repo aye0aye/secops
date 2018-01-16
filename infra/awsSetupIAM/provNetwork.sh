@@ -60,7 +60,7 @@ apply_changes() {
   terraform plan
 
   echo "-----------------  Apply changes  ------------------"
-#  terraform apply
+  terraform apply
 
 #  #output AMI VPC
 #  BASE_ECS_AMI=$(terraform output base_ecs_ami)
