@@ -60,26 +60,26 @@ resources:
       params:
         SEED: "initial_version"
 
-## AMI VPC Info
-#  - name: ami_vpc_info
-#    type: params
-#    version:
-#      params:
-#        SEED: "initial_version"
-#
-## Test VPC Info
-#  - name: test_vpc_info
-#    type: params
-#    version:
-#      params:
-#        SEED: "initial_version"
-#
-## Prod VPC Info
-#  - name: prod_vpc_info
-#    type: params
-#    version:
-#      params:
-#        SEED: "initial_version"
+# AMI VPC Info
+  - name: ami_vpc_info
+    type: params
+    version:
+      params:
+        STATUS: "empty"
+
+# Test VPC Info
+  - name: test_vpc_info
+    type: params
+    version:
+      params:
+        STATUS: "empty"
+
+# Prod VPC Info
+  - name: prod_vpc_info
+    type: params
+    version:
+      params:
+        STATUS: "empty"
 
 #---------------------------------------------------------------#
 #---------------------- SecOps Jobs ----------------------------#
@@ -104,10 +104,14 @@ jobs:
             - cd ./infra/awsSetupIAM
             - ./provNetwork.sh create netw_tf_state
             - popd
-#      - OUT: ami_vpc_info
-#      - OUT: test_vpc_info
-#      - OUT: prod_vpc_info
+      - OUT: ami_vpc_info
+        overwrite: true
+      - OUT: test_vpc_info
+        overwrite: true
+      - OUT: prod_vpc_info
+        overwrite: true
       - OUT: netw_tf_state
+        overwrite: true
     always:
       script:
         - pushd $(shipctl get_resource_state "sec_repo")
@@ -135,9 +139,12 @@ jobs:
             - ./provNetwork.sh destroy netw_tf_state
             - popd
       - OUT: netw_tf_state
-#      - OUT: ami_vpc_info
-#      - OUT: test_vpc_info
-#      - OUT: prod_vpc_info
+      - OUT: ami_vpc_info
+        overwrite: true
+      - OUT: test_vpc_info
+        overwrite: true
+      - OUT: prod_vpc_info
+        overwrite: true
     always:
       script:
         - pushd $(shipctl get_resource_state "sec_repo")
@@ -153,7 +160,7 @@ jobs:
         switch: off
       - IN: sec_repo
         switch: off
-#      - IN: ami_vpc_info
+      - IN: ami_vpc_info
       - TASK:
           script:
             - pushd $(shipctl get_resource_state "sec_repo")

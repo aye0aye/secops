@@ -48,29 +48,17 @@ destroy_changes() {
     #output AMI VPC
   shipctl post_resource_state_multi $OUT_AMI_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
-     REGION= \
-     BASE_ECS_AMI= \
-     AMI_VPC_ID= \
-     AMI_PUBLIC_SG_ID= \
-     AMI_PUBLIC_SN_ID= "
+     STATUS='empty' "
 
   #output TEST VPC
   shipctl post_resource_state_multi $OUT_TEST_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
-     REGION= \
-     TEST_VPC_ID= \
-     TEST_PUBLIC_SG_ID= \
-     TEST_PUBLIC_SN_01_ID= \
-     TEST_PUBLIC_SN_02_ID= "
+     STATUS='empty' "
 
   #output PROD VPC
   shipctl post_resource_state_multi $OUT_PROD_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
-     REGION= \
-     PROD_VPC_ID= \
-     PROD_PUBLIC_SG_ID= \
-     PROD_PUBLIC_SN_01_ID= \
-     PROD_PUBLIC_SN_02_ID= "
+     STATUS='empty' "
 }
 
 apply_changes() {
@@ -83,6 +71,7 @@ apply_changes() {
   #output AMI VPC
   shipctl post_resource_state_multi $OUT_AMI_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
+     STATUS='provisioned' \
      REGION=$REGION \
      BASE_ECS_AMI=$(terraform output base_ecs_ami) \
      AMI_VPC_ID=$(terraform output ami_vpc_id) \
@@ -92,6 +81,7 @@ apply_changes() {
   #output TEST VPC
   shipctl post_resource_state_multi $OUT_TEST_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
+     STATUS='provisioned' \
      REGION=$REGION \
      TEST_VPC_ID=$(terraform output test_vpc_id) \
      TEST_PUBLIC_SG_ID=$(terraform output test_public_sg_id) \
@@ -101,6 +91,7 @@ apply_changes() {
   #output PROD VPC
   shipctl post_resource_state_multi $OUT_PROD_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
+     STATUS='provisioned' \
      REGION=$REGION \
      PROD_VPC_ID=$(terraform output prod_vpc_id) \
      PROD_PUBLIC_SG_ID=$(terraform output prod_public_sg_id) \
