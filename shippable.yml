@@ -111,8 +111,8 @@ jobs:
     always:
       script:
         - pushd $(shipctl get_resource_state "sec_repo")
-        - cd ./infra
-        - ./archiveState.sh infra/awsSetupIAM netw_tf_state sec_repo
+        - cd ./infra/awsSetupIAM
+        - shipctl refresh_file_to_out_path terraform.tfstate netw_tf_state
         - popd
 
 # Deprovision Network
@@ -136,7 +136,11 @@ jobs:
             - popd
       - OUT: netw_tf_state
     always:
-      - script: ./build/IN/secops_repo/gitRepo/infra/archiveState.sh infra/awsSetupIAM netw_tf_state sec_repo
+      script:
+        - pushd $(shipctl get_resource_state "sec_repo")
+        - cd ./infra/awsSetupIAM
+        - shipctl refresh_file_to_out_path terraform.tfstate netw_tf_state
+        - popd
 
 # Build Machine image - AWS AMI used to deploy ECS VMs with PACKER
   - name: prep_ecs_ami_pack

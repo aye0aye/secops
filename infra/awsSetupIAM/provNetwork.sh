@@ -10,12 +10,15 @@ export OUT_PROD_VPC="prod_vpc_info"
 
 export TF_STATEFILE="terraform.tfstate"
 
-# Now get AWS keys
-export RES_AWS_CREDS_UP=$(echo $RES_AWS_CREDS | awk '{print toupper($0)}')
-export RES_AWS_CREDS_INT=$RES_AWS_CREDS_UP"_INTEGRATION"
+## Now get AWS keys
+#export RES_AWS_CREDS_UP=$(echo $RES_AWS_CREDS | awk '{print toupper($0)}')
+#export RES_AWS_CREDS_INT=$RES_AWS_CREDS_UP"_INTEGRATION"
+#
+#export AWS_ACCESS_KEY_ID=$(eval echo "$"$RES_AWS_CREDS_INT"_ACCESSKEY")
+#export AWS_SECRET_ACCESS_KEY=$(eval echo "$"$RES_AWS_CREDS_INT"_SECRETKEY")
 
-export AWS_ACCESS_KEY_ID=$(eval echo "$"$RES_AWS_CREDS_INT"_ACCESSKEY")
-export AWS_SECRET_ACCESS_KEY=$(eval echo "$"$RES_AWS_CREDS_INT"_SECRETKEY")
+export AWS_ACCESS_KEY_ID=$(shipctl get_integration_resource_field $RES_AWS_CREDS ACCESSKEY)
+export AWS_SECRET_ACCESS_KEY=$(shipctl get_integration_resource_field $RES_AWS_CREDS SECRETKEY)
 
 set_context(){
   echo "RES_AWS_CREDS=$RES_AWS_CREDS"
@@ -62,20 +65,6 @@ apply_changes() {
   echo "-----------------  Apply changes  ------------------"
   terraform apply
 
-#  #output AMI VPC
-#  BASE_ECS_AMI=$(terraform output base_ecs_ami)
-#  AMI_VPC_ID=$(terraform output ami_vpc_id)
-#  AMI_PUBLIC_SG_ID=$(terraform output ami_public_sg_id)
-#  AMI_PUBLIC_SN_ID=$(terraform output ami_public_sn_id)
-#
-#  shipctl post_resource_state_multi $OUT_AMI_VPC \
-#    "versionName='Version from build $BUILD_NUMBER' \
-#     REGION=$REGION \
-#     BASE_ECS_AMI=$BASE_ECS_AMI \
-#     AMI_VPC_ID=$AMI_VPC_ID \
-#     AMI_PUBLIC_SG_ID=$AMI_PUBLIC_SG_ID \
-#     AMI_PUBLIC_SN_ID=$AMI_PUBLIC_SN_ID"
-
   #output AMI VPC
   shipctl post_resource_state_multi $OUT_AMI_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
@@ -86,32 +75,22 @@ apply_changes() {
      AMI_PUBLIC_SN_ID=$(terraform output ami_public_sn_id)"
 
   #output TEST VPC
-  TEST_VPC_ID=$(terraform output test_vpc_id)
-  TEST_PUBLIC_SG_ID=$(terraform output test_public_sg_id)
-  TEST_PUBLIC_SN_01_ID=$(terraform output test_public_sn_01_id)
-  TEST_PUBLIC_SN_02_ID=$(terraform output test_public_sn_02_id)
-
   shipctl post_resource_state_multi $OUT_TEST_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
      REGION=$REGION \
-     TEST_VPC_ID=$TEST_VPC_ID \
-     TEST_PUBLIC_SG_ID=$TEST_PUBLIC_SG_ID \
-     TEST_PUBLIC_SN_01_ID=$TEST_PUBLIC_SN_01_ID \
-     TEST_PUBLIC_SN_02_ID=$TEST_PUBLIC_SN_02_ID "
+     TEST_VPC_ID=$(terraform output test_vpc_id) \
+     TEST_PUBLIC_SG_ID=$(terraform output test_public_sg_id) \
+     TEST_PUBLIC_SN_01_ID=$(terraform output test_public_sn_01_id) \
+     TEST_PUBLIC_SN_02_ID=$(terraform output test_public_sn_02_id) "
 
   #output PROD VPC
-  PROD_VPC_ID=$(terraform output prod_vpc_id)
-  PROD_PUBLIC_SG_ID=$(terraform output prod_public_sg_id)
-  PROD_PUBLIC_SN_01_ID=$(terraform output prod_public_sn_01_id)
-  PROD_PUBLIC_SN_02_ID=$(terraform output prod_public_sn_02_id)
-
   shipctl post_resource_state_multi $OUT_PROD_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
      REGION=$REGION \
-     PROD_VPC_ID=$PROD_VPC_ID \
-     PROD_PUBLIC_SG_ID=$PROD_PUBLIC_SG_ID \
-     PROD_PUBLIC_SN_01_ID=$PROD_PUBLIC_SN_01_ID \
-     PROD_PUBLIC_SN_02_ID=$PROD_PUBLIC_SN_02_ID "
+     PROD_VPC_ID=$(terraform output prod_vpc_id) \
+     PROD_PUBLIC_SG_ID=$(terraform output prod_public_sg_id) \
+     PROD_PUBLIC_SN_01_ID=$(terraform output prod_public_sn_01_id) \
+     PROD_PUBLIC_SN_02_ID=$(terraform output prod_public_sn_02_id) "
 }
 
 main() {
