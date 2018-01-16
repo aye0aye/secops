@@ -18,6 +18,8 @@ set_context(){
   echo "AWS_ACCESS_KEY_ID=${#AWS_ACCESS_KEY_ID}" #print only length not value
   echo "AWS_SECRET_ACCESS_KEY=${#AWS_SECRET_ACCESS_KEY}" #print only length not value
 
+  echo "region=$REGION"
+
   # This restores the terraform state file
   shipctl copy_file_from_resource_state $STATE_RES $TF_STATEFILE .
 
