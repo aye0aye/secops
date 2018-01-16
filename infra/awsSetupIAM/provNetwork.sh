@@ -1,16 +1,16 @@
 #!/bin/bash -e
+set -o pipefail
 
-export ACTION=$1
-export STATE_RES=$2
-export RES_AWS_CREDS="demo_aws_cli"
-export OUT_AMI_VPC="ami_vpc_info"
-export OUT_TEST_VPC="test_vpc_info"
-export OUT_PROD_VPC="prod_vpc_info"
+ACTION=$1
+STATE_RES=$2
+RES_AWS_CREDS="demo_aws_cli"
+OUT_AMI_VPC="ami_vpc_info"
+OUT_TEST_VPC="test_vpc_info"
+OUT_PROD_VPC="prod_vpc_info"
+TF_STATEFILE="terraform.tfstate"
 
-export TF_STATEFILE="terraform.tfstate"
-
-export AWS_ACCESS_KEY_ID=$(shipctl get_integration_resource_field $RES_AWS_CREDS ACCESSKEY)
-export AWS_SECRET_ACCESS_KEY=$(shipctl get_integration_resource_field $RES_AWS_CREDS SECRETKEY)
+AWS_ACCESS_KEY_ID=$(shipctl get_integration_resource_field $RES_AWS_CREDS ACCESSKEY)
+AWS_SECRET_ACCESS_KEY=$(shipctl get_integration_resource_field $RES_AWS_CREDS SECRETKEY)
 
 set_context(){
   echo "RES_AWS_CREDS=$RES_AWS_CREDS"
@@ -48,29 +48,29 @@ destroy_changes() {
     #output AMI VPC
   shipctl post_resource_state_multi $OUT_AMI_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
-     REGION='' \
-     BASE_ECS_AMI='' \
-     AMI_VPC_ID='' \
-     AMI_PUBLIC_SG_ID='' \
-     AMI_PUBLIC_SN_ID='' "
+     REGION= \
+     BASE_ECS_AMI= \
+     AMI_VPC_ID= \
+     AMI_PUBLIC_SG_ID= \
+     AMI_PUBLIC_SN_ID= "
 
   #output TEST VPC
   shipctl post_resource_state_multi $OUT_TEST_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
-     REGION='' \
-     TEST_VPC_ID='' \
-     TEST_PUBLIC_SG_ID='' \
-     TEST_PUBLIC_SN_01_ID='' \
-     TEST_PUBLIC_SN_02_ID='' "
+     REGION= \
+     TEST_VPC_ID= \
+     TEST_PUBLIC_SG_ID= \
+     TEST_PUBLIC_SN_01_ID= \
+     TEST_PUBLIC_SN_02_ID= "
 
   #output PROD VPC
   shipctl post_resource_state_multi $OUT_PROD_VPC \
     "versionName='Version from build $BUILD_NUMBER' \
-     REGION='' \
-     PROD_VPC_ID='' \
-     PROD_PUBLIC_SG_ID='' \
-     PROD_PUBLIC_SN_01_ID='' \
-     PROD_PUBLIC_SN_02_ID=$'' "
+     REGION= \
+     PROD_VPC_ID= \
+     PROD_PUBLIC_SG_ID= \
+     PROD_PUBLIC_SN_01_ID= \
+     PROD_PUBLIC_SN_02_ID= "
 }
 
 apply_changes() {

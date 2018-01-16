@@ -158,6 +158,6 @@ jobs:
           script:
             - pushd $(shipctl get_resource_state "sec_repo")
             - cd ./infra/awsBuildAMI
-            - ./basePack.sh prep_ecs_ami_pack demo_aws_cli ami_secops_approved
+            - ./basePack.sh demo_aws_cli ami_secops_approved
             - popd
       - OUT: ami_secops_approved
