@@ -109,7 +109,11 @@ jobs:
       - OUT: prod_vpc_info
       - OUT: netw_tf_state
     always:
-      - script: ./build/IN/secops_repo/gitRepo/infra/archiveState.sh infra/awsSetupIAM netw_tf_state sec_repo
+      - script:
+          - pushd $(shipctl get_resource_state "sec_repo")
+          - cd ./infra
+          - ./archiveState.sh infra/awsSetupIAM netw_tf_state sec_repo
+          - popd
 
 # Deprovision Network
   - name: deprov_netw_tf

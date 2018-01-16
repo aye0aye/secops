@@ -11,8 +11,8 @@ export OUT_PROD_VPC="prod_vpc_info"
 export TF_STATEFILE="terraform.tfstate"
 
 # Now get AWS keys
-export AWS_ACCESS_KEY_ID=$(ship_resource_get_integration $RES_AWS_CREDS aws_access_key_id)
-export AWS_SECRET_ACCESS_KEY=$(ship_resource_get_integration $RES_AWS_CREDS aws_secret_access_key)
+export AWS_ACCESS_KEY_ID=$(get_integration_resource_field $RES_AWS_CREDS aws_access_key_id)
+export AWS_SECRET_ACCESS_KEY=$(get_integration_resource_field $RES_AWS_CREDS aws_secret_access_key)
 
 set_context(){
   echo "RES_AWS_CREDS=$RES_AWS_CREDS"
@@ -57,7 +57,7 @@ apply_changes() {
   terraform plan
 
   echo "-----------------  Apply changes  ------------------"
-  terraform apply
+#  terraform apply
 
   #output AMI VPC
   ship_resource_post_state $OUT_AMI_VPC versionName \
