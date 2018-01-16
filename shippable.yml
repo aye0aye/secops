@@ -60,26 +60,26 @@ resources:
       params:
         SEED: "initial_version"
 
-# AMI VPC Info
-  - name: ami_vpc_info
-    type: params
-    version:
-      params:
-        SEED: "initial_version"
-
-# Test VPC Info
-  - name: test_vpc_info
-    type: params
-    version:
-      params:
-        SEED: "initial_version"
-
-# Prod VPC Info
-  - name: prod_vpc_info
-    type: params
-    version:
-      params:
-        SEED: "initial_version"
+## AMI VPC Info
+#  - name: ami_vpc_info
+#    type: params
+#    version:
+#      params:
+#        SEED: "initial_version"
+#
+## Test VPC Info
+#  - name: test_vpc_info
+#    type: params
+#    version:
+#      params:
+#        SEED: "initial_version"
+#
+## Prod VPC Info
+#  - name: prod_vpc_info
+#    type: params
+#    version:
+#      params:
+#        SEED: "initial_version"
 
 #---------------------------------------------------------------#
 #---------------------- SecOps Jobs ----------------------------#
@@ -104,9 +104,9 @@ jobs:
             - cd ./infra/awsSetupIAM
             - ./provNetwork.sh create netw_tf_state
             - popd
-      - OUT: ami_vpc_info
-      - OUT: test_vpc_info
-      - OUT: prod_vpc_info
+#      - OUT: ami_vpc_info
+#      - OUT: test_vpc_info
+#      - OUT: prod_vpc_info
       - OUT: netw_tf_state
     always:
       script:
