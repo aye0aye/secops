@@ -14,14 +14,6 @@ resources:
       sourceName: "aye0aye/secops"
       branch: master
 
-# Automation scripts repo
-  - name: dOps_repo
-    type: gitRepo
-    integration: "tokenForRepos"
-    pointer:
-      sourceName: "aye0aye/ops"
-      branch: master
-
 # AWS credentials
   - name: demo_aws_cli
     type: cliConfig
