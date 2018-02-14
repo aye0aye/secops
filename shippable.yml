@@ -5,6 +5,7 @@
 resources:
 #################################################################
 ## Shared resources
+##################################################################
 
 # Automation scripts repo
   - name: sec_repo
@@ -25,8 +26,21 @@ resources:
     type: integration
     integration: demo_key_pair
 
-#################################################################
-## Networking input resources
+##################################################################
+#### GKE Provisioning Resources
+##################################################################
+
+# GKE Cluster
+  - name: gke_cluster
+    type: cluster
+    integration: demo_gke
+    pointer:
+      sourceName: "cluster"
+      region: "us-west1-a"
+
+##################################################################
+#### AWS Provisioning Resources
+##################################################################
 
 # Networking Terraform State
   - name: netw_tf_state
@@ -49,9 +63,6 @@ resources:
         PROD_NETWORK_CIDR: "100.0.0.0/16"
         PROD_PUBLIC_01_CIDR: "100.0.0.0/24"
         PROD_PUBLIC_02_CIDR: "100.0.10.0/24"
-
-#################################################################
-## Networking output resources
 
 # Base ECS AMI ID
   - name: ami_secops_approved
@@ -81,11 +92,77 @@ resources:
       params:
         STATUS: "empty"
 
+# TEST AWS cluster
+  - name: test_env_ecs
+    type: cluster
+    integration: demo_aws # replace with your AWS integration name
+    versionTemplate:
+      # replace with your Amazon ECS cluster name and region
+      sourceName : ${CLUSTER_NAME}
+      region: ${REGION}
+
+## TEST AWS ALB target group
+#  - name: test_alb     #required
+#    type: loadBalancer #required
+#    versionTemplate:
+#      # replace with the ARN for your Amazon EC/2 Application Load Balancer Target Group
+#      sourceName: "arn:aws:elasticloadbalancing:us-east-1:679404489841:targetgroup/ecs-test-tg/bc20de1be2dab77d"
+#      method: application
+
+# TEST environment config
+  - name: test_env_conf_ans
+    type: params
+    versionTemplate:
+      params:
+        EC2_TAG_ROLE: "test_env_demo"
+        EC2_TAG_TYPE: "ecs_container_instance"
+        VPC_KEYPAIR_NAME: "demo_us_east_1"
+        ECS_AMI: "ami-ba722dc0"
+        EC2_COUNT: 2
+        EC2_INSTANCE_TYPE: "t2.micro"
+        ECS_CLUSTER_NAME: "test_env_demo"
+        ENVIRONMENT: "test"
+
+# PROD AWS cluster
+  - name: prod_env_ecs
+    type: cluster
+    integration: demo_aws # replace with your AWS integration name
+    versionTemplate:
+      # replace with your Amazon ECS cluster name and region
+      sourceName : ${CLUSTER_NAME}
+      region: ${REGION}
+
+## PROD AWS ALB target group
+#  - name: prod_alb     #required
+#    type: loadBalancer #required
+#    versionTemplate:
+#      # replace with the ARN for your Amazon EC/2 Application Load Balancer Target Group
+#      sourceName: "arn:aws:elasticloadbalancing:us-east-1:679404489841:targetgroup/ecs-test-tg/bc20de1be2dab77d"
+#      method: application
+
+# PROD environment config
+  - name: prod_env_conf_ans
+    type: params
+    versionTemplate:
+      params:
+        EC2_TAG_ROLE: "prod_env_demo"
+        EC2_TAG_TYPE: "ecs_container_instance"
+        VPC_KEYPAIR_NAME: "demo_us_east_1"
+        ECS_AMI: "ami-ba722dc0"
+        EC2_COUNT: 2
+        EC2_INSTANCE_TYPE: "t2.micro"
+        ECS_CLUSTER_NAME: "prod_env_demo"
+        ENVIRONMENT: "prod"
+
 #---------------------------------------------------------------#
 #---------------------- SecOps Jobs ----------------------------#
 #---------------------------------------------------------------#
 
 jobs:
+##################################################################
+################### Provision AWS VPC Jobs
+##################################################################
+
 # Set up Network - AWS IAM roles, profiles, VPCs etc. with TERRAFORM
   - name: prov_netw_tf
     type: runSh
@@ -173,5 +250,153 @@ jobs:
             - popd
       - OUT: ami_secops_approved
         overwrite: true
+    flags:
+      - prov
+
+##################################################################
+################### Provision AWS ECS Jobs
+##################################################################
+
+# Provision TEST VMs and ECS cluster with Ansible
+  - name: prov_test_env_ans
+    type: runSh
+    dependencyMode: strict
+    triggerMode: parallel
+    steps:
+      - IN: ami_secops_approved
+      - IN: demo_aws_cli
+        switch: off
+      - IN: test_env_conf_ans
+        switch: off
+      - IN: demo_aws_pem
+        switch: off
+      - IN: test_vpc_info
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - TASK:
+          script:
+            - sudo pip install boto3
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/provision-ecs-ansible
+            - export CLUSTER_RES_NAME="test_env_ecs"
+            - export AMI_ID=$(shipctl get_resource_version_name ami_secops_approved)
+            - export PUBLIC_SN_01_ID=$TEST_PUBLIC_SN_01_ID
+            - export PUBLIC_SN_02_ID=$TEST_PUBLIC_SN_02_ID
+            - export PUBLIC_SG_ID=$TEST_PUBLIC_SG_ID
+            - shipctl replace ansible.cfg ./group_vars/ecs-cluster-vars.yml
+            - ansible-playbook -v ansible-ecs-provision.yml
+            - popd
+      - OUT: test_env_ecs
+        overwrite: true
+    flags:
+      - prov
+
+# Deprovision TEST VMs and ECS cluster
+  - name: deprov_test_env_ans
+    type: runSh
+    steps:
+#      - IN: auto_bvt
+#        switch: off
+      - IN: prov_test_env_ans
+        switch: off
+      - IN: demo_aws_cli
+        switch: off
+      - IN: test_env_conf_ans
+        switch: off
+      - IN: test_vpc_info
+        switch: off
+      - IN: demo_aws_pem
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - IN: ami_secops_approved
+        switch: off
+      - TASK:
+          script:
+            - sudo pip install boto3
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/provision-ecs-ansible
+            - export CLUSTER_RES_NAME="test_env_ecs"
+            - export AMI_ID=$(shipctl get_resource_version_name ami_secops_approved)
+            - export PUBLIC_SN_01_ID=$TEST_PUBLIC_SN_01_ID
+            - export PUBLIC_SN_02_ID=$TEST_PUBLIC_SN_02_ID
+            - export PUBLIC_SG_ID=$TEST_PUBLIC_SG_ID
+            - shipctl replace ansible.cfg group_vars/ecs-cluster-vars.yml
+            - ansible-playbook -v ansible-ecs-terminate.yml
+            - popd
+#      - OUT: test_env_ecs
+#        overwrite: true
+    flags:
+      - prov
+
+# Provision PROD VMs and ECS cluster with Ansible
+  - name: prov_prod_env_ans
+    type: runSh
+    dependencyMode: strict
+    triggerMode: parallel
+    steps:
+      - IN: ami_secops_approved
+      - IN: demo_aws_cli
+        switch: off
+      - IN: prod_env_conf_ans
+        switch: off
+      - IN: demo_aws_pem
+        switch: off
+      - IN: prod_vpc_info
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - TASK:
+          script:
+            - sudo pip install boto3
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/provision-ecs-ansible
+            - export CLUSTER_RES_NAME="prod_env_ecs"
+            - export AMI_ID=$(shipctl get_resource_version_name ami_secops_approved)
+            - export PUBLIC_SN_01_ID=$PROD_PUBLIC_SN_01_ID
+            - export PUBLIC_SN_02_ID=$PROD_PUBLIC_SN_02_ID
+            - export PUBLIC_SG_ID=$PROD_PUBLIC_SG_ID
+            - shipctl replace ansible.cfg ./group_vars/ecs-cluster-vars.yml
+            - ansible-playbook -v ansible-ecs-provision.yml
+            - popd
+      - OUT: prod_env_ecs
+        overwrite: true
+    flags:
+      - prov
+
+# Deprovision PROD VMs and ECS cluster
+  - name: deprov_prod_env_ans
+    type: runSh
+    steps:
+      - IN: prov_prod_env_ans
+        switch: off
+      - IN: demo_aws_cli
+        switch: off
+      - IN: prod_env_conf_ans
+        switch: off
+      - IN: prod_vpc_info
+        switch: off
+      - IN: demo_aws_pem
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - IN: ami_secops_approved
+        switch: off
+      - TASK:
+          script:
+            - sudo pip install boto3
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/provision-ecs-ansible
+            - export CLUSTER_RES_NAME="prod_env_ecs"
+            - export AMI_ID=$(shipctl get_resource_version_name ami_secops_approved)
+            - export PUBLIC_SN_01_ID=$PROD_PUBLIC_SN_01_ID
+            - export PUBLIC_SN_02_ID=$PROD_PUBLIC_SN_02_ID
+            - export PUBLIC_SG_ID=$PROD_PUBLIC_SG_ID
+            - shipctl replace ansible.cfg group_vars/ecs-cluster-vars.yml
+            - ansible-playbook -v ansible-ecs-terminate.yml
+            - popd
+#      - OUT: prod_env_ecs
+#        overwrite: true
     flags:
       - prov

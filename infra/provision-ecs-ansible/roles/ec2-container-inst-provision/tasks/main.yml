@@ -1,0 +1,30 @@
+---
+- name: Provision {{ ec2_count }} instances with tag {{ ec2_tag_Role }}
+  local_action:
+    module: ec2
+    key_name: "{{ ec2_keypair }}"
+    group_id: "{{ ec2_security_group }}"
+    instance_type: "{{ ec2_instance_type }}"
+    instance_profile_name: "ecsInstanceRole"
+    image: "{{ ec2_image }}"
+    user_data: "#!/bin/bash \n echo ECS_CLUSTER={{ ecs_cluster_name }} > /etc/ecs/ecs.config"
+    vpc_subnet_id: "{{ ec2_subnet_ids|random }}"
+    region: "{{ ec2_region }}"
+    instance_tags: '{"Role":"{{ec2_tag_Role}}","Type":"{{ec2_tag_Type}}","Environment":"{{ec2_tag_Environment}}"}'
+    assign_public_ip: yes
+    wait: true
+    exact_count: "{{ ec2_count }}"
+    count_tag:
+      Role: "{{ ec2_tag_Role }}"
+  register: ec2
+
+- name: Wait for the instances to boot by checking the ssh port
+  wait_for: host={{item.public_ip}} port=22 delay=15 timeout=300 state=started
+  with_items: "{{ ec2.instances }}"
+
+# update shippable resource state
+- name: run cmd
+  shell: |
+    shipctl put_resource_state "{{ CLUSTER_RES_NAME }}" "INST_{{ item.ami_launch_index }}_PUBLIC_IP" "{{ item.public_ip }}"
+    shipctl put_resource_state "{{ CLUSTER_RES_NAME }}" "INST_{{ item.ami_launch_index }}_ID" "{{ item.id }}"
+  with_items: "{{ ec2.instances }}"

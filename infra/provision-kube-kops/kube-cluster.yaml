@@ -1,0 +1,76 @@
+apiVersion: kops/v1alpha2
+kind: Cluster
+metadata:
+  creationTimestamp: 2017-10-24T01:04:07Z
+  name: ${CLUSTER_NAME}
+spec:
+  api:
+    dns: {}
+  authorization:
+    alwaysAllow: {}
+  channel: stable
+  cloudProvider: ${CLOUD}
+  configBase: ${KOPS_STATE_STORE}/${CLUSTER_NAME}
+  etcdClusters:
+  - etcdMembers:
+    - instanceGroup: master-${MASTER_ZONES}
+      name: c
+    name: main
+  - etcdMembers:
+    - instanceGroup: master-${MASTER_ZONES}
+      name: c
+    name: events
+  kubernetesApiAccess:
+  - 0.0.0.0/0
+  kubernetesVersion: 1.7.4
+  masterPublicName: api.${CLUSTER_NAME}
+  networkCIDR: 100.0.0.0/16
+  networkID: ${VPC}
+  networking:
+    kubenet: {}
+  nonMasqueradeCIDR: 100.64.0.0/10
+  sshAccess:
+  - 0.0.0.0/0
+  sshKeyName: dr-kp-us-east
+  subnets:
+  - cidr: 100.0.32.0/19
+    name: ${ZONES}
+    type: Public
+    zone: ${ZONES}
+  topology:
+    dns:
+      type: Public
+    masters: public
+    nodes: public
+---
+apiVersion: kops/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: 2017-10-24T01:04:07Z
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: master-${MASTER_ZONES}
+spec:
+  image: kope.io/k8s-1.7-debian-jessie-amd64-hvm-ebs-2017-07-28
+  machineType: ${MASTER_SIZE}
+  maxSize: 1
+  minSize: 1
+  role: Master
+  subnets:
+  - ${ZONES}
+---
+apiVersion: kops/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: 2017-10-24T01:04:07Z
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: nodes
+spec:
+  image: kope.io/k8s-1.7-debian-jessie-amd64-hvm-ebs-2017-07-28
+  machineType: ${NODE_SIZE}
+  maxSize: ${NODE_COUNT}
+  minSize: ${NODE_COUNT}
+  role: Node
+  subnets:
+  - ${ZONES}

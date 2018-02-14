@@ -1,0 +1,25 @@
+---
+- name: Get EC2 instance IDs for registered container instances
+  run_once: true
+  ec2_remote_facts:
+    region: "{{ ec2_region }}"
+    filters:
+      instance-state-name: running
+      "tag:Type": "{{ ec2_tag_Type }}"
+      "tag:Role": "{{ ec2_tag_Role }}"
+      "tag:Environment": "{{ ec2_tag_Environment }}"
+  register: instances
+
+- name: display instances
+  run_once: true
+  debug:
+    var: instances
+
+- name: Remove registered container instances
+  run_once: true
+  ec2:
+    region: "{{ ec2_region }}"
+    state: absent
+    wait: true
+    instance_ids: "{{instances|json_query('instances[*].id')}}"
+  when: instances

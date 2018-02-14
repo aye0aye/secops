@@ -1,0 +1,43 @@
+---
+- name: get list of services running in cluster
+  ecs_service_facts:
+    cluster: "{{ ecs_cluster_name }}"
+  register: services
+
+- name: display services
+  run_once: true
+  debug:
+    var: services.ansible_facts
+  when: services
+
+- name: display services
+  run_once: true
+  debug:
+    msg: "{{services|json_query('ansible_facts.services[*]') }}"
+  when: services
+
+- name: display services with shell command
+  run_once: true
+  shell: |
+    echo {{item | basename}}
+  with_items: "{{services|json_query('ansible_facts.services[*]')}}"
+  when: services
+
+- name: Scale ECS services to 0
+  ecs_service:
+    # name: "ansible-test"
+    name: "{{ item | basename }}"
+    state: present
+    desired_count: 0
+    task_definition: 'basic_node_family:4'
+    cluster: "{{ ecs_cluster_name }}"
+  with_items: "{{services|json_query('ansible_facts.services[*]')}}"
+  when: services
+
+- name: Terminate ECS services 
+  ecs_service:
+    name: "{{ item | basename }}"
+    state: absent
+    cluster: "{{ ecs_cluster_name }}"
+  with_items: "{{services|json_query('ansible_facts.services[*]')}}"
+  when: services

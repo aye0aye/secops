@@ -1,0 +1,12 @@
+---
+## terminate ECS services
+- hosts: localhost
+  connection: local
+  gather_facts: false
+#  user: root
+  pre_tasks:
+    - include_vars: group_vars/ecs-cluster-vars.yml
+  roles:
+    - ecs-services-terminate
+    - ec2-container-inst-terminate
+    - ecs-cluster-terminate
