@@ -154,6 +154,80 @@ resources:
         ECS_CLUSTER_NAME: "prod_env_demo"
         ENVIRONMENT: "prod"
 
+##################################################################
+#### Kubernetes cluster on AWS resources
+#
+## Kubernetes cluster on AWS for use with managed Deploy job
+#  - name: e2eshipdemo-cluster-kube
+#    type: cluster
+#    integration: ttrahan-kube # replace with your Kube integration name
+#    pointer:
+#      # replace with your Kubernetes cluster name and region
+#      sourceName : "cluster"
+#      region: "us-east-1"
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+## AWS CLI config - kops
+#  - name: aws_cli_config_kube
+#    type: cliConfig
+#    integration: dr-aws-kops
+#    pointer:
+#      region: us-east-1
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+## SSH keys for use in KOPS provisioning
+#  - name: sshkey_kops
+#    type: integration
+#    integration: kp-us-east-1-kops
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+## Kube cluster config
+#  - name: kube_cluster_config
+#    type: params
+#    version:
+#      params:
+#        CLUSTER_NAME: "cluster.prod.example-kube-cluster.com"
+#        KOPS_STATE_STORE: "s3://kube-cluster-state"
+#        CLOUD: "aws"
+#        ZONES: "us-east-1c"
+#        MASTER_ZONES: "us-east-1c"
+#        MASTER_SIZE: "m3.medium"
+#        NODE_SIZE: "t2.medium"
+#        NODE_COUNT: 2
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+## Kube cluster info
+#  - name: kube_cluster_info
+#    type: params
+#    version:
+#      params:
+#        SEED: "initial placeholder"
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+##################################################################
+#### Google Cloud - Devops Recipes account
+#
+## GKE cluster
+#  - name: gke_cluster
+#    type: cluster
+#    integration: drship_gke    #replace with your Kubernetes integration name
+#    pointer:
+#      sourceName: "shipdemo-cluster"
+#      namespace: devops-samples
+#      region: us-central1-b
+#
+
+
 #---------------------------------------------------------------#
 #---------------------- SecOps Jobs ----------------------------#
 #---------------------------------------------------------------#
@@ -400,3 +474,103 @@ jobs:
 #        overwrite: true
     flags:
       - prov
+
+
+## Provision Kubernetes cluster with KOPS
+#  - name: prov_kube_cluster
+#    type: runSh
+#    steps:
+#      - IN: aws_cli_config_kube
+#        switch: off
+#      - IN: sshkey_kops
+#        switch: off
+#      - IN: prod_vpc_conf
+#        switch: off
+#      - IN: ops_repo
+#        switch: off
+#      - IN: kube_cluster_config
+#        switch: off
+#      - OUT: kube_cluster_info
+#      - TASK:
+#        # install KOPS CLI
+#        - script: |
+#            wget -q -O kops https://github.com/kubernetes/kops/releases/download/1.7.0/kops-linux-amd64
+#            chmod +x ./kops
+#            sudo mv ./kops /usr/local/bin
+#        # set aws variables for use by KOPS
+#        - script: |
+#            export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
+#            export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
+#        # create Kubernetes cluster
+#        - script: echo "---creating cluster---"
+#          # update cluster spec with input parameters
+#        - script: |
+#            pushd ${OPS_REPO_STATE}/infra/provision-kube-kops
+#            shipctl replace kube-cluster.yaml
+#            cat kube-cluster.yaml
+#          # check if cluster exist, create if not, replace otherwise
+#        - script: |
+#            if [[ ! $(kops get cluster --name "${CLUSTER_NAME}") ]]; then
+#              echo "creating cluster"
+#              kops create -f kube-cluster.yaml --name "${CLUSTER_NAME}"
+#              kops create secret --name ${CLUSTER_NAME} sshpublickey admin -i $SSHKEY_KOPS_PUBLIC_KEY_PATH
+#              echo "done creating cluster"
+#            else
+#              echo "replacing cluster"
+#              kops replace -f kube-cluster.yaml --name "${CLUSTER_NAME}"
+#              echo "done replacing cluster"
+#            fi
+#            popd
+#          # provision Kubernetes cluster
+#        - script: |
+#            echo "---provisioning cluster---"
+#            kops update cluster $CLUSTER_NAME --yes --state $KOPS_STATE_STORE --yes
+#            echo "---cluster provisioning triggered---"
+#          # save cluster info to state
+#        - script: >
+#            shipctl put_resource_state kube_cluster_info
+#            CLUSTER_NAME ${CLUSTER_NAME}
+#            KOPS_STATE_STORE ${KOPS_STATE_STORE}
+#            CLOUD ${CLOUD}
+#            MASTER_LOCATION ${MASTER_ZONES}
+#    on_success:
+#      - script: echo "SUCCESS"
+#    on_failure:
+#      - script: echo "FAILURE"
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+## Deprovision Kubernetes cluster with KOPS
+#  - name: deprov_kube_cluster
+#    type: runSh
+#    steps:
+#      - IN: prov_kube_cluster
+#        switch: off
+#      - IN: aws_cli_config_kube
+#        switch: off
+#      - IN: kube_cluster_config
+#        switch: off
+#      - TASK:
+#        # install KOPS CLI
+#        - script: |
+#            wget -q -O kops https://github.com/kubernetes/kops/releases/download/1.7.0/kops-linux-amd64
+#            chmod +x ./kops
+#            sudo mv ./kops /usr/local/bin
+#        # set aws variables for use by KOPS
+#        - script: |
+#            export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
+#            export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
+#        # deprovision Kubernetes cluster
+#        - script: echo "---deprovisioning cluster---"
+#        - script: kops delete cluster $CLUSTER_NAME --yes --state $KOPS_STATE_STORE --yes
+#        - script: echo "---cluster deprovisioning triggered---"
+#    on_success:
+#      - script: echo "SUCCESS"
+#    on_failure:
+#      - script: echo "FAILURE"
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+
