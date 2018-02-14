@@ -118,6 +118,8 @@ jobs:
         - cd ./infra/awsSetupIAM
         - shipctl refresh_file_to_out_path terraform.tfstate netw_tf_state
         - popd
+    flags:
+      - prov
 
 # Deprovision Network
   - name: deprov_netw_tf
@@ -151,6 +153,8 @@ jobs:
         - cd ./infra/awsSetupIAM
         - shipctl refresh_file_to_out_path terraform.tfstate netw_tf_state
         - popd
+    flags:
+      - prov
 
 # Build Machine image - AWS AMI used to deploy ECS VMs with PACKER
   - name: prep_ecs_ami_pack
@@ -169,3 +173,5 @@ jobs:
             - popd
       - OUT: ami_secops_approved
         overwrite: true
+    flags:
+      - prov
