@@ -113,7 +113,7 @@ jobs:
       - IN: prov_netw_tf
         switch: off
       - IN: netw_tf_state
-      - IN: netw_conf
+      - IN: netw_conf_aws
         switch: off
       - IN: demo_aws_cli
         switch: off
