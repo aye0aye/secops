@@ -50,37 +50,37 @@ variable "ami_public_cidr" {
   description = "Public 0.0 CIDR for externally accessible subnet"
 }
 
-########################### Test VPC Config ################################
-
-variable "test_vpc" {
-  description = "VPC for Test environment"
-}
-
-variable "test_network_cidr" {
-  description = "IP addressing for Test Network"
-}
-
-variable "test_public_01_cidr" {
-  description = "Public 0.0 CIDR for externally accessible subnet"
-}
-
-variable "test_public_02_cidr" {
-  description = "Public 0.0 CIDR for externally accessible subnet"
-}
-
-########################### Prod VPC Config ################################
-
-variable "prod_vpc" {
-  description = "VPC for Prod environment"
-}
-
-variable "prod_network_cidr" {
-  description = "IP addressing for Prod Network"
-}
-
-variable "prod_public_01_cidr" {
-  description = "Public 0.0 CIDR for externally accessible subnet"
-}
-variable "prod_public_02_cidr" {
-  description = "Public 0.0 CIDR for externally accessible subnet"
-}
+//########################### Test VPC Config ################################
+//
+//variable "test_vpc" {
+//  description = "VPC for Test environment"
+//}
+//
+//variable "test_network_cidr" {
+//  description = "IP addressing for Test Network"
+//}
+//
+//variable "test_public_01_cidr" {
+//  description = "Public 0.0 CIDR for externally accessible subnet"
+//}
+//
+//variable "test_public_02_cidr" {
+//  description = "Public 0.0 CIDR for externally accessible subnet"
+//}
+//
+//########################### Prod VPC Config ################################
+//
+//variable "prod_vpc" {
+//  description = "VPC for Prod environment"
+//}
+//
+//variable "prod_network_cidr" {
+//  description = "IP addressing for Prod Network"
+//}
+//
+//variable "prod_public_01_cidr" {
+//  description = "Public 0.0 CIDR for externally accessible subnet"
+//}
+//variable "prod_public_02_cidr" {
+//  description = "Public 0.0 CIDR for externally accessible subnet"
+//}
