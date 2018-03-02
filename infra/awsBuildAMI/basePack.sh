@@ -17,6 +17,8 @@ set_context(){
   echo "VPC_ID=$AMI_VPC_ID"
   echo "SUBNET_ID=$AMI_PUBLIC_SN_ID"
   echo "SECURITY_GROUP_ID=$AMI_PUBLIC_SG_ID"
+  echo "BE_IMG=$BE_IMG"
+  echo "BE_TAG=$BE_TAG"
   echo "AWS_ACCESS_KEY_ID=${#AWS_ACCESS_KEY_ID}" #print only length not value
   echo "AWS_SECRET_ACCESS_KEY=${#AWS_SECRET_ACCESS_KEY}" #print only length not value
 }
@@ -36,6 +38,8 @@ build_ecs_ami() {
     -var SUBNET_ID=$AMI_PUBLIC_SN_ID \
     -var SECURITY_GROUP_ID=$AMI_PUBLIC_SG_ID \
     -var SOURCE_AMI=$BASE_ECS_AMI \
+    -var BE_IMG=$BE_IMG \
+    -var BE_TAG=$BE_TAG \
     baseAMI.json
 
     AMI_ID=$(shipctl get_json_value manifest.json builds[0].artifact_id | cut -d':' -f 2)
