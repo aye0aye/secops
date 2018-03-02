@@ -11,9 +11,9 @@
 main() {
   sleep 60  #sleep so that we can avoid boot latency errors
 
-  sudo -y apt-get update
+  sudo apt-get update
 
-  sudo -y apt-get install \
+  sudo --assume-yes apt-get install \
     apt-transport-https \
     ca-certificates \
     curl \
@@ -28,7 +28,7 @@ main() {
 
   sudo apt-get update
 
-  sudo apt-get install docker-ce
+  sudo apt-get --assume-yes install docker-ce
 
   sudo docker pull hello-world
 }
