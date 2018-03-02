@@ -126,8 +126,8 @@ jobs:
             - ./provNetwork.sh destroy netw_tf_state
             - popd
       - OUT: netw_tf_state
-      - OUT: ami_vpc_info
-        overwrite: true
+#      - OUT: ami_vpc_info
+#        overwrite: true
     always:
       script:
         - pushd $(shipctl get_resource_state "sec_repo")
