@@ -6,8 +6,8 @@
     "VPC_ID": "",
     "SUBNET_ID": "",
     "SOURCE_AMI": "test",
-    "BE_IMG": "test",
-    "BE_TAG": "test",
+    "BE_IMG": "",
+    "BE_TAG": "",
     "SECURITY_GROUP_ID": ""
   },
   "builders": [
