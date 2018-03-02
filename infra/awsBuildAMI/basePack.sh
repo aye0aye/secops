@@ -38,8 +38,6 @@ build_ecs_ami() {
     -var SUBNET_ID=$AMI_PUBLIC_SN_ID \
     -var SECURITY_GROUP_ID=$AMI_PUBLIC_SG_ID \
     -var SOURCE_AMI=$BASE_ECS_AMI \
-    -var BE_IMG=$BE_IMG \
-    -var BE_TAG=$BE_TAG \
     baseAMI.json
 
     AMI_ID=$(shipctl get_json_value manifest.json builds[0].artifact_id | cut -d':' -f 2)
