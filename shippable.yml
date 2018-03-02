@@ -138,6 +138,27 @@ jobs:
       - prov
 
 
+# Backend App Machine image - used to create  AMI with PACKER
+  - name: prep_be_ami_pack
+    type: runSh
+    steps:
+      - IN: demo_aws_cli
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - IN: ami_vpc_info
+      - TASK:
+          script:
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/awsBuildAMI
+            - ./basePack.sh demo_aws_cli be_ami
+            - popd
+      - OUT: be_ami
+        overwrite: true
+    flags:
+      - prov
+
+
 ###################################################################
 #################### Provision AWS VPC Jobs
 ###################################################################
