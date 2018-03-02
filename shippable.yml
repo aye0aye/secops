@@ -18,216 +18,126 @@ resources:
 ###################################################################
 ##### AWS Provisioning Resources
 ###################################################################
-## Automation scripts repo
-#  - name: sec_repo
-#    type: gitRepo
-#    integration: "demo_github"
-#    pointer:
-#      sourceName: "aye0aye/secops"
-#      branch: master
+# Automation scripts repo
+  - name: sec_repo
+    type: gitRepo
+    integration: "demo_github"
+    pointer:
+      sourceName: "aye0aye/secops"
+      branch: master
 
-## AWS credentials
-#  - name: demo_aws_cli
-#    type: cliConfig
-#    integration: demo_aws
-#    versionTemplate:
-#      region: us-east-1
-#
-#  - name: demo_aws_pem
-#    type: integration
-#    integration: demo_key_pair
-#
-## Networking Terraform State
-#  - name: netw_tf_state
-#    type: state
-#
-## VPC Creation Config
-#  - name: netw_conf
-#    type: params
-#    version:
-#      params:
-#        REGION: "us-east-1"
-#        AMI_VPC: "demo_ami_vpc"
-#        AMI_NETWORK_CIDR: "10.0.0.0/16"
-#        AMI_PUBLIC_CIDR: "10.0.0.0/24"
-#        TEST_VPC: "demo_test_vpc"
-#        TEST_NETWORK_CIDR: "200.0.0.0/16"
-#        TEST_PUBLIC_01_CIDR: "200.0.0.0/24"
-#        TEST_PUBLIC_02_CIDR: "200.0.10.0/24"
-#        PROD_VPC: "demo_prod_vpc"
-#        PROD_NETWORK_CIDR: "100.0.0.0/16"
-#        PROD_PUBLIC_01_CIDR: "100.0.0.0/24"
-#        PROD_PUBLIC_02_CIDR: "100.0.10.0/24"
-#
-## Base ECS AMI ID
-#  - name: ami_secops_approved
-#    type: params
-#    version:
-#      params:
-#        STATUS: "empty"
-#
-## AMI VPC Info
-#  - name: ami_vpc_info
-#    type: params
-#    version:
-#      params:
-#        STATUS: "empty"
-#
-## Test VPC Info
-#  - name: test_vpc_info
-#    type: params
-#    version:
-#      params:
-#        STATUS: "empty"
-#
-## Prod VPC Info
-#  - name: prod_vpc_info
-#    type: params
-#    version:
-#      params:
-#        STATUS: "empty"
-#
-## TEST AWS cluster
-#  - name: test_env_ecs
-#    type: cluster
-#    integration: demo_aws # replace with your AWS integration name
-#    versionTemplate:
-#      # replace with your Amazon ECS cluster name and region
-#      sourceName : ${CLUSTER_NAME}
-#      region: ${REGION}
-#
-### TEST AWS ALB target group
-##  - name: test_alb     #required
-##    type: loadBalancer #required
-##    versionTemplate:
-##      # replace with the ARN for your Amazon EC/2 Application Load Balancer Target Group
-##      sourceName: "arn:aws:elasticloadbalancing:us-east-1:679404489841:targetgroup/ecs-test-tg/bc20de1be2dab77d"
-##      method: application
-#
-## TEST environment config
-#  - name: test_env_conf_ans
-#    type: params
-#    versionTemplate:
-#      params:
-#        EC2_TAG_ROLE: "test_env_demo"
-#        EC2_TAG_TYPE: "ecs_container_instance"
-#        VPC_KEYPAIR_NAME: "demo_us_east_1"
-#        ECS_AMI: "ami-ba722dc0"
-#        EC2_COUNT: 2
-#        EC2_INSTANCE_TYPE: "t2.micro"
-#        ECS_CLUSTER_NAME: "test_env_demo"
-#        ENVIRONMENT: "test"
-#
-## PROD AWS cluster
-#  - name: prod_env_ecs
-#    type: cluster
-#    integration: demo_aws # replace with your AWS integration name
-#    versionTemplate:
-#      # replace with your Amazon ECS cluster name and region
-#      sourceName : ${CLUSTER_NAME}
-#      region: ${REGION}
-#
-### PROD AWS ALB target group
-##  - name: prod_alb     #required
-##    type: loadBalancer #required
-##    versionTemplate:
-##      # replace with the ARN for your Amazon EC/2 Application Load Balancer Target Group
-##      sourceName: "arn:aws:elasticloadbalancing:us-east-1:679404489841:targetgroup/ecs-test-tg/bc20de1be2dab77d"
-##      method: application
-#
-## PROD environment config
-#  - name: prod_env_conf_ans
-#    type: params
-#    versionTemplate:
-#      params:
-#        EC2_TAG_ROLE: "prod_env_demo"
-#        EC2_TAG_TYPE: "ecs_container_instance"
-#        VPC_KEYPAIR_NAME: "demo_us_east_1"
-#        ECS_AMI: "ami-ba722dc0"
-#        EC2_COUNT: 2
-#        EC2_INSTANCE_TYPE: "t2.micro"
-#        ECS_CLUSTER_NAME: "prod_env_demo"
-#        ENVIRONMENT: "prod"
+# AWS credentials
+  - name: demo_aws_cli
+    type: cliConfig
+    integration: demo_aws
+    versionTemplate:
+      region: us-east-1
 
-##################################################################
-#### Kubernetes cluster on AWS resources
-#
-## Kubernetes cluster on AWS for use with managed Deploy job
-#  - name: e2eshipdemo-cluster-kube
-#    type: cluster
-#    integration: ttrahan-kube # replace with your Kube integration name
-#    pointer:
-#      # replace with your Kubernetes cluster name and region
-#      sourceName : "cluster"
-#      region: "us-east-1"
-#    flags:
-#      - e2eShippableDemo
-#      - kubernetes
-#
-## AWS CLI config - kops
-#  - name: aws_cli_config_kube
-#    type: cliConfig
-#    integration: dr-aws-kops
-#    pointer:
-#      region: us-east-1
-#    flags:
-#      - e2eShippableDemo
-#      - kubernetes
-#
-## SSH keys for use in KOPS provisioning
-#  - name: sshkey_kops
-#    type: integration
-#    integration: kp-us-east-1-kops
-#    flags:
-#      - e2eShippableDemo
-#      - kubernetes
-#
-## Kube cluster config
-#  - name: kube_cluster_config
-#    type: params
-#    version:
-#      params:
-#        CLUSTER_NAME: "cluster.prod.example-kube-cluster.com"
-#        KOPS_STATE_STORE: "s3://kube-cluster-state"
-#        CLOUD: "aws"
-#        ZONES: "us-east-1c"
-#        MASTER_ZONES: "us-east-1c"
-#        MASTER_SIZE: "m3.medium"
-#        NODE_SIZE: "t2.medium"
-#        NODE_COUNT: 2
-#    flags:
-#      - e2eShippableDemo
-#      - kubernetes
-#
-## Kube cluster info
-#  - name: kube_cluster_info
-#    type: params
-#    version:
-#      params:
-#        SEED: "initial placeholder"
-#    flags:
-#      - e2eShippableDemo
-#      - kubernetes
-#
-##################################################################
-#### Google Cloud - Devops Recipes account
-#
-## GKE cluster
-#  - name: gke_cluster
-#    type: cluster
-#    integration: drship_gke    #replace with your Kubernetes integration name
-#    pointer:
-#      sourceName: "shipdemo-cluster"
-#      namespace: devops-samples
-#      region: us-central1-b
-#
+  - name: demo_aws_pem
+    type: integration
+    integration: demo_key_pair
 
+# Networking Terraform State
+  - name: netw_tf_state
+    type: state
+
+# VPC Creation Config
+  - name: netw_conf_aws
+    type: params
+    version:
+      params:
+        REGION: "us-east-1"
+        AMI_VPC: "demo_ami_vpc"
+        AMI_NETWORK_CIDR: "10.0.0.0/16"
+        AMI_PUBLIC_CIDR: "10.0.0.0/24"
+        BASE_ECS_AMI: "ami-a22323d8"   #aws vanilla ami
+
+# Backend APP AMI ID
+  - name: be_ami
+    type: params
+    version:
+      params:
+        STATUS: "empty"
+
+# AMI VPC Info
+  - name: ami_vpc_info
+    type: params
+    version:
+      params:
+        STATUS: "empty"
 
 #---------------------------------------------------------------#
 #---------------------- SecOps Jobs ----------------------------#
 #---------------------------------------------------------------#
 
 jobs:
+###################################################################
+#################### Provision AWS VPC Jobs
+###################################################################
+
+# Set up Network - AWS IAM roles, profiles, VPCs etc. with TERRAFORM
+  - name: prov_netw_tf
+    type: runSh
+    dependencyMode: strict
+    triggerMode: parallel
+    steps:
+      - IN: netw_tf_state
+      - IN: netw_conf_aws
+      - IN: demo_aws_cli
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - TASK:
+          script:
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/awsSetupIAM
+            - ./provNetwork.sh create netw_tf_state
+            - popd
+      - OUT: ami_vpc_info
+        overwrite: true
+      - OUT: netw_tf_state
+        overwrite: true
+    always:
+      script:
+        - pushd $(shipctl get_resource_state "sec_repo")
+        - cd ./infra/awsSetupIAM
+        - shipctl refresh_file_to_out_path terraform.tfstate netw_tf_state
+        - popd
+    flags:
+      - prov
+
+# Deprovision Network
+  - name: deprov_netw_tf
+    type: runSh
+    steps:
+      - IN: prov_netw_tf
+        switch: off
+      - IN: netw_tf_state
+      - IN: netw_conf
+        switch: off
+      - IN: demo_aws_cli
+        switch: off
+      - IN: sec_repo
+        switch: off
+      - TASK:
+          script:
+            - pushd $(shipctl get_resource_state "sec_repo")
+            - cd ./infra/awsSetupIAM
+            - ./provNetwork.sh destroy netw_tf_state
+            - popd
+      - OUT: netw_tf_state
+      - OUT: ami_vpc_info
+        overwrite: true
+    always:
+      script:
+        - pushd $(shipctl get_resource_state "sec_repo")
+        - cd ./infra/awsSetupIAM
+        - shipctl refresh_file_to_out_path terraform.tfstate netw_tf_state
+        - popd
+    flags:
+      - prov
+
+
 ###################################################################
 #################### Provision AWS VPC Jobs
 ###################################################################
@@ -570,3 +480,189 @@ jobs:
 #      - kubernetes
 #
 
+
+
+
+
+
+
+## VPC Creation Config
+#  - name: netw_conf
+#    type: params
+#    version:
+#      params:
+#        REGION: "us-east-1"
+#        AMI_VPC: "demo_ami_vpc"
+#        AMI_NETWORK_CIDR: "10.0.0.0/16"
+#        AMI_PUBLIC_CIDR: "10.0.0.0/24"
+#        TEST_VPC: "demo_test_vpc"
+#        TEST_NETWORK_CIDR: "200.0.0.0/16"
+#        TEST_PUBLIC_01_CIDR: "200.0.0.0/24"
+#        TEST_PUBLIC_02_CIDR: "200.0.10.0/24"
+#        PROD_VPC: "demo_prod_vpc"
+#        PROD_NETWORK_CIDR: "100.0.0.0/16"
+#        PROD_PUBLIC_01_CIDR: "100.0.0.0/24"
+#        PROD_PUBLIC_02_CIDR: "100.0.10.0/24"
+#
+## Base ECS AMI ID
+#  - name: ami_secops_approved
+#    type: params
+#    version:
+#      params:
+#        STATUS: "empty"
+#
+## AMI VPC Info
+#  - name: ami_vpc_info
+#    type: params
+#    version:
+#      params:
+#        STATUS: "empty"
+#
+## Test VPC Info
+#  - name: test_vpc_info
+#    type: params
+#    version:
+#      params:
+#        STATUS: "empty"
+#
+## Prod VPC Info
+#  - name: prod_vpc_info
+#    type: params
+#    version:
+#      params:
+#        STATUS: "empty"
+#
+## TEST AWS cluster
+#  - name: test_env_ecs
+#    type: cluster
+#    integration: demo_aws # replace with your AWS integration name
+#    versionTemplate:
+#      # replace with your Amazon ECS cluster name and region
+#      sourceName : ${CLUSTER_NAME}
+#      region: ${REGION}
+#
+### TEST AWS ALB target group
+##  - name: test_alb     #required
+##    type: loadBalancer #required
+##    versionTemplate:
+##      # replace with the ARN for your Amazon EC/2 Application Load Balancer Target Group
+##      sourceName: "arn:aws:elasticloadbalancing:us-east-1:679404489841:targetgroup/ecs-test-tg/bc20de1be2dab77d"
+##      method: application
+#
+## TEST environment config
+#  - name: test_env_conf_ans
+#    type: params
+#    versionTemplate:
+#      params:
+#        EC2_TAG_ROLE: "test_env_demo"
+#        EC2_TAG_TYPE: "ecs_container_instance"
+#        VPC_KEYPAIR_NAME: "demo_us_east_1"
+#        ECS_AMI: "ami-ba722dc0"
+#        EC2_COUNT: 2
+#        EC2_INSTANCE_TYPE: "t2.micro"
+#        ECS_CLUSTER_NAME: "test_env_demo"
+#        ENVIRONMENT: "test"
+#
+## PROD AWS cluster
+#  - name: prod_env_ecs
+#    type: cluster
+#    integration: demo_aws # replace with your AWS integration name
+#    versionTemplate:
+#      # replace with your Amazon ECS cluster name and region
+#      sourceName : ${CLUSTER_NAME}
+#      region: ${REGION}
+#
+### PROD AWS ALB target group
+##  - name: prod_alb     #required
+##    type: loadBalancer #required
+##    versionTemplate:
+##      # replace with the ARN for your Amazon EC/2 Application Load Balancer Target Group
+##      sourceName: "arn:aws:elasticloadbalancing:us-east-1:679404489841:targetgroup/ecs-test-tg/bc20de1be2dab77d"
+##      method: application
+#
+## PROD environment config
+#  - name: prod_env_conf_ans
+#    type: params
+#    versionTemplate:
+#      params:
+#        EC2_TAG_ROLE: "prod_env_demo"
+#        EC2_TAG_TYPE: "ecs_container_instance"
+#        VPC_KEYPAIR_NAME: "demo_us_east_1"
+#        ECS_AMI: "ami-ba722dc0"
+#        EC2_COUNT: 2
+#        EC2_INSTANCE_TYPE: "t2.micro"
+#        ECS_CLUSTER_NAME: "prod_env_demo"
+#        ENVIRONMENT: "prod"
+
+##################################################################
+#### Kubernetes cluster on AWS resources
+#
+## Kubernetes cluster on AWS for use with managed Deploy job
+#  - name: e2eshipdemo-cluster-kube
+#    type: cluster
+#    integration: ttrahan-kube # replace with your Kube integration name
+#    pointer:
+#      # replace with your Kubernetes cluster name and region
+#      sourceName : "cluster"
+#      region: "us-east-1"
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+## AWS CLI config - kops
+#  - name: aws_cli_config_kube
+#    type: cliConfig
+#    integration: dr-aws-kops
+#    pointer:
+#      region: us-east-1
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+## SSH keys for use in KOPS provisioning
+#  - name: sshkey_kops
+#    type: integration
+#    integration: kp-us-east-1-kops
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+## Kube cluster config
+#  - name: kube_cluster_config
+#    type: params
+#    version:
+#      params:
+#        CLUSTER_NAME: "cluster.prod.example-kube-cluster.com"
+#        KOPS_STATE_STORE: "s3://kube-cluster-state"
+#        CLOUD: "aws"
+#        ZONES: "us-east-1c"
+#        MASTER_ZONES: "us-east-1c"
+#        MASTER_SIZE: "m3.medium"
+#        NODE_SIZE: "t2.medium"
+#        NODE_COUNT: 2
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+## Kube cluster info
+#  - name: kube_cluster_info
+#    type: params
+#    version:
+#      params:
+#        SEED: "initial placeholder"
+#    flags:
+#      - e2eShippableDemo
+#      - kubernetes
+#
+##################################################################
+#### Google Cloud - Devops Recipes account
+#
+## GKE cluster
+#  - name: gke_cluster
+#    type: cluster
+#    integration: drship_gke    #replace with your Kubernetes integration name
+#    pointer:
+#      sourceName: "shipdemo-cluster"
+#      namespace: devops-samples
+#      region: us-central1-b
+#

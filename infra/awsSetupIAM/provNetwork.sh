@@ -31,14 +31,14 @@ set_context(){
   echo "ami_vpc = \"$AMI_VPC\"" >> terraform.tfvars
   echo "ami_network_cidr = \"$AMI_NETWORK_CIDR\"" >> terraform.tfvars
   echo "ami_public_cidr = \"$AMI_PUBLIC_CIDR\"" >> terraform.tfvars
-  echo "test_vpc = \"$TEST_VPC\"" >> terraform.tfvars
-  echo "test_network_cidr = \"$TEST_NETWORK_CIDR\"" >> terraform.tfvars
-  echo "test_public_01_cidr = \"$TEST_PUBLIC_01_CIDR\"" >> terraform.tfvars
-  echo "test_public_02_cidr = \"$TEST_PUBLIC_02_CIDR\"" >> terraform.tfvars
-  echo "prod_vpc = \"$PROD_VPC\"" >> terraform.tfvars
-  echo "prod_network_cidr = \"$PROD_NETWORK_CIDR\"" >> terraform.tfvars
-  echo "prod_public_01_cidr = \"$PROD_PUBLIC_01_CIDR\"" >> terraform.tfvars
-  echo "prod_public_02_cidr = \"$PROD_PUBLIC_02_CIDR\"" >> terraform.tfvars
+#  echo "test_vpc = \"$TEST_VPC\"" >> terraform.tfvars
+#  echo "test_network_cidr = \"$TEST_NETWORK_CIDR\"" >> terraform.tfvars
+#  echo "test_public_01_cidr = \"$TEST_PUBLIC_01_CIDR\"" >> terraform.tfvars
+#  echo "test_public_02_cidr = \"$TEST_PUBLIC_02_CIDR\"" >> terraform.tfvars
+#  echo "prod_vpc = \"$PROD_VPC\"" >> terraform.tfvars
+#  echo "prod_network_cidr = \"$PROD_NETWORK_CIDR\"" >> terraform.tfvars
+#  echo "prod_public_01_cidr = \"$PROD_PUBLIC_01_CIDR\"" >> terraform.tfvars
+#  echo "prod_public_02_cidr = \"$PROD_PUBLIC_02_CIDR\"" >> terraform.tfvars
 }
 
 destroy_changes() {
@@ -50,15 +50,15 @@ destroy_changes() {
     "versionName='Version from build $BUILD_NUMBER' \
      STATUS='empty' "
 
-  #output TEST VPC
-  shipctl post_resource_state_multi $OUT_TEST_VPC \
-    "versionName='Version from build $BUILD_NUMBER' \
-     STATUS='empty' "
-
-  #output PROD VPC
-  shipctl post_resource_state_multi $OUT_PROD_VPC \
-    "versionName='Version from build $BUILD_NUMBER' \
-     STATUS='empty' "
+#  #output TEST VPC
+#  shipctl post_resource_state_multi $OUT_TEST_VPC \
+#    "versionName='Version from build $BUILD_NUMBER' \
+#     STATUS='empty' "
+#
+#  #output PROD VPC
+#  shipctl post_resource_state_multi $OUT_PROD_VPC \
+#    "versionName='Version from build $BUILD_NUMBER' \
+#     STATUS='empty' "
 }
 
 apply_changes() {
@@ -78,25 +78,25 @@ apply_changes() {
      AMI_PUBLIC_SG_ID=$(terraform output ami_public_sg_id) \
      AMI_PUBLIC_SN_ID=$(terraform output ami_public_sn_id)"
 
-  #output TEST VPC
-  shipctl post_resource_state_multi $OUT_TEST_VPC \
-    "versionName='Version from build $BUILD_NUMBER' \
-     STATUS='provisioned' \
-     REGION=$REGION \
-     TEST_VPC_ID=$(terraform output test_vpc_id) \
-     TEST_PUBLIC_SG_ID=$(terraform output test_public_sg_id) \
-     TEST_PUBLIC_SN_01_ID=$(terraform output test_public_sn_01_id) \
-     TEST_PUBLIC_SN_02_ID=$(terraform output test_public_sn_02_id) "
-
-  #output PROD VPC
-  shipctl post_resource_state_multi $OUT_PROD_VPC \
-    "versionName='Version from build $BUILD_NUMBER' \
-     STATUS='provisioned' \
-     REGION=$REGION \
-     PROD_VPC_ID=$(terraform output prod_vpc_id) \
-     PROD_PUBLIC_SG_ID=$(terraform output prod_public_sg_id) \
-     PROD_PUBLIC_SN_01_ID=$(terraform output prod_public_sn_01_id) \
-     PROD_PUBLIC_SN_02_ID=$(terraform output prod_public_sn_02_id) "
+#  #output TEST VPC
+#  shipctl post_resource_state_multi $OUT_TEST_VPC \
+#    "versionName='Version from build $BUILD_NUMBER' \
+#     STATUS='provisioned' \
+#     REGION=$REGION \
+#     TEST_VPC_ID=$(terraform output test_vpc_id) \
+#     TEST_PUBLIC_SG_ID=$(terraform output test_public_sg_id) \
+#     TEST_PUBLIC_SN_01_ID=$(terraform output test_public_sn_01_id) \
+#     TEST_PUBLIC_SN_02_ID=$(terraform output test_public_sn_02_id) "
+#
+#  #output PROD VPC
+#  shipctl post_resource_state_multi $OUT_PROD_VPC \
+#    "versionName='Version from build $BUILD_NUMBER' \
+#     STATUS='provisioned' \
+#     REGION=$REGION \
+#     PROD_VPC_ID=$(terraform output prod_vpc_id) \
+#     PROD_PUBLIC_SG_ID=$(terraform output prod_public_sg_id) \
+#     PROD_PUBLIC_SN_01_ID=$(terraform output prod_public_sn_01_id) \
+#     PROD_PUBLIC_SN_02_ID=$(terraform output prod_public_sn_02_id) "
 }
 
 main() {
