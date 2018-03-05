@@ -180,9 +180,9 @@ jobs:
             - shipctl post_resource_state $JOB_NAME versionName $AMI_ID
             - >
               shipctl post_resource_state_multi be_ami
-                "versionName=$AMI_ID
-                STATUS='available'
-                AMI_ID=$AMI_ID"
+              "versionName=$AMI_ID
+              STATUS='available'
+              AMI_ID=$AMI_ID"
             - popd
       - OUT: be_ami
         overwrite: true
