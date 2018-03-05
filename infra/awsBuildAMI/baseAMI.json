@@ -8,7 +8,7 @@
     "SOURCE_AMI": "test",
     "SECURITY_GROUP_ID": "",
     "BE_IMG": "",
-    "BE_TAG": "",
+    "BE_TAG": ""
   },
   "builders": [
     {
