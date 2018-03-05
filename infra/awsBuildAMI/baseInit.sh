@@ -11,13 +11,13 @@
 main() {
 #  sleep 60  #sleep so that we can avoid boot latency errors
 #
-#  sudo apt-get update
-#
-#  sudo --assume-yes apt-get install \
-#    apt-transport-https \
-#    ca-certificates \
-#    curl \
-#    software-properties-common
+  sudo apt-get update -y
+
+  sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common -y
 #
 #  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 #
