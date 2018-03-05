@@ -32,8 +32,8 @@ main() {
 #
 #  sudo docker pull hello-world
 
-  echo $be_tag
-  echo $be_img
+  echo $BE_IMG
+  echo $BE_TAG
 }
 
 main

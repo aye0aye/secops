@@ -6,7 +6,9 @@
     "VPC_ID": "",
     "SUBNET_ID": "",
     "SOURCE_AMI": "test",
-    "SECURITY_GROUP_ID": ""
+    "SECURITY_GROUP_ID": "",
+    "BE_IMG": "",
+    "BE_TAG": "",
   },
   "builders": [
     {
@@ -14,7 +16,6 @@
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "{{user `REGION`}}",
-      "foo": "{{user `REGION`}}",
       "vpc_id": "{{user `VPC_ID`}}",
       "subnet_id": "{{user `SUBNET_ID`}}",
       "associate_public_ip_address": true,
@@ -37,7 +38,11 @@
   "provisioners": [
     {
       "type": "shell",
-      "script": "baseInit.sh"
+      "script": "baseInit.sh",
+      "environment_vars": [
+        "BE_IMG={{user `BE_IMG`}}",
+        "BE_TAG={{user `BE_TAG`}}"
+      ]
     }
   ],
   "post-processors": [
