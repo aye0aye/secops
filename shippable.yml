@@ -3,17 +3,17 @@
 #---------------------------------------------------------------#
 
 resources:
-##################################################################
-#### GKE Provisioning Resources
-##################################################################
-
-# GKE Cluster
-  - name: gke_cluster
-    type: cluster
-    integration: demo_gke
-    pointer:
-      sourceName: "cluster"
-      region: "us-west1-a"
+###################################################################
+##### GKE Provisioning Resources
+###################################################################
+#
+## GKE Cluster
+#  - name: gke_cluster
+#    type: cluster
+#    integration: demo_gke
+#    pointer:
+#      sourceName: "cluster"
+#      region: "us-west1-a"
 
 ###################################################################
 ##### AWS Provisioning Resources
@@ -152,16 +152,38 @@ jobs:
       - TASK:
           script:
             - pushd $(shipctl get_resource_state "sec_repo")
+            - eval `ssh-agent -s`
+            - which ssh-agent
             - export BE_IMG=$(shipctl get_resource_version_key dh_img_app_be sourceName)
             - export BE_TAG=$(shipctl get_resource_version_name dh_img_app_be)
+            - export AWS_ACCESS_KEY_ID=$(shipctl get_integration_resource_field demo_aws_cli ACCESSKEY)
+            - export AWS_SECRET_ACCESS_KEY=$(shipctl get_integration_resource_field demo_aws_cli SECRETKEY)
             - cd ./infra/awsBuildAMI
-            - ./basePack.sh demo_aws_cli be_ami
+            - echo "validating AMI template"
+            - echo "-----------------------------------"
+            - packer validate baseAMI.json
+            - echo "building AMI"
+            - echo "-----------------------------------"
+            - packer build \
+              -var aws_access_key=$AWS_ACCESS_KEY_ID \
+              -var aws_secret_key=$AWS_SECRET_ACCESS_KEY \
+              -var REGION=$REGION \
+              -var VPC_ID=$AMI_VPC_ID \
+              -var SUBNET_ID=$AMI_PUBLIC_SN_ID \
+              -var SECURITY_GROUP_ID=$AMI_PUBLIC_SG_ID \
+              -var SOURCE_AMI=$BASE_ECS_AMI \
+              baseAMI.json
+            - export AMI_ID=$(shipctl get_json_value manifest.json builds[0].artifact_id | cut -d':' -f 2)
+            - shipctl post_resource_state $JOB_NAME versionName $AMI_ID
+            - shipctl post_resource_state_multi be_ami \
+                "versionName=$AMI_ID \
+                STATUS='available' \
+                AMI_ID=$AMI_ID"
             - popd
       - OUT: be_ami
         overwrite: true
     flags:
       - prov
-
 
 ###################################################################
 #################### Provision AWS VPC Jobs
