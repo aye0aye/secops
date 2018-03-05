@@ -14,6 +14,7 @@
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "{{user `REGION`}}",
+      "foo": "{{user `REGION`}}",
       "vpc_id": "{{user `VPC_ID`}}",
       "subnet_id": "{{user `SUBNET_ID`}}",
       "associate_public_ip_address": true,
